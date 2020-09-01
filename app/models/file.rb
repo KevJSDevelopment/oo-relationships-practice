@@ -26,15 +26,22 @@ class Bakery
     end
 
     def shopping_list
-
+      self.ingredients_b.to_s
     end
 
-    def ingredients
+
+#
+
+    def ingredients_b
+      all_ingredients = []
         self.desserts.map do |dessert|
             dessert.ingredients
+        end.each do |ingredient|
+          all_ingredients << ingredient
         end
+        return all_ingredients
     end
-    
+
     def desserts
         Dessert.all.select do |dessert|
             dessert.bakery == self
@@ -44,12 +51,15 @@ end
 
 class Dessert
 
-    attr_reader :bakery, :calories, :name
+    attr_reader :bakery, :name
 
-    def initialize(bakery, name, calories)
+    def initialize(bakery, name)
         @bakery = bakery
         @name = name
-        @calories = calories
+    end
+
+    def calories
+      self.ingredients.sum
     end
 
     def add_ingredient(ingredient)
@@ -72,10 +82,17 @@ end
 
 class Ingredient
 
-    attr_reader :dessert
+    attr_reader :calories
 
-    def initialize(name)
+    def initialize(name, calories)
         @name = name
+        @calories = calories
+    end
+
+    def dessert
+      Dessert.all.select do |dessert|
+        dessert.ingredients.include?(self)
+      end
     end
 
     def add_dessert(dessert)
@@ -119,7 +136,19 @@ class DessertIngredient
 end
 
 bakery1 = Bakery.new("new_bakery")
-dessert1 = Dessert.new(bakery1, "cheesecake", 200)
-dessert2 = Dessert.new(bakery1, "apple pie", 150)
+dessert1 = Dessert.new(bakery1, "cheesecake")
+cheese = Ingredient.new("cheese", 50)
+sugar = Ingredient.new("sugar", 30)
+apples = Ingredient.new("apples", 45)
+dessert1.add_ingredient(cheese)
+dessert1.add_ingredient(sugar)
+dessert2 = Dessert.new(bakery1, "apple pie")
+dessert2.add_ingredient(apples)
+dessert2.add_ingredient(sugar)
+
+
+#desserts = [des1, des2, ... desN]
+
+
 
 binding.pry
